@@ -3,18 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FireStoreModel {
   final firestore = FirebaseFirestore.instance;
 
-  Future<void> saveFcmToken({required String token}) async {
+  Future<void> saveFcmToken({String? token}) async {
     final collectionRef = firestore.collection('users');
+    final snapshot = await collectionRef.where('fcmToken', isEqualTo: token).get();
+    final doc = snapshot.docs;
 
-    if (collectionRef.doc(token).path.isEmpty) {
+    if (doc.isEmpty) {
       await collectionRef.doc(token).set(<String, dynamic>{
         'fcmToken': token,
-        'createdAt' : DateTime.now(),
-      });
-    } else {
-      await collectionRef.doc(token).update(<String, dynamic>{
-        'fcmToken': token,
-        'createdAt' : DateTime.now(),
       });
     }
   }
@@ -26,7 +22,7 @@ class FireStoreModel {
         firestore.collection('users').doc(token).collection('post');
     await collectionRef.add(<String, dynamic>{
       'text': text,
+      'createdAt': DateTime.now(),
     });
   }
-
 }

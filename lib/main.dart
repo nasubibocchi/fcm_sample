@@ -1,11 +1,14 @@
+import 'package:fcm_statenotifier/functions/firestore_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'pages/post_page.dart';
+import 'pages/token_provider.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -65,16 +68,22 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class MyHomePage extends HookConsumerWidget {
 
   @override
-  Widget build(BuildContext context) {
-    return PostPage();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fireStoreModel = FireStoreModel();
+
+    final token = ref.watch(tokenProvider).token.toString();
+    useEffect(() {
+      ref.read(tokenProvider.notifier).getToken();
+    }, const []);
+
+    return PostPage(token: token);
   }
 }
