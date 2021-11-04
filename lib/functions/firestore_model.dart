@@ -23,6 +23,7 @@ class FireStoreModel {
     await collectionRef.add(<String, dynamic>{
       'text': text,
       'createdAt': DateTime.now(),
+      'fcmToken' : token,
     });
   }
 }
