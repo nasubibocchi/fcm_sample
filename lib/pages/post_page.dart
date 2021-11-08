@@ -11,11 +11,12 @@ class PostPage extends HookConsumerWidget {
   PostPage({required this.token});
   String text = '';
   String token;
+  final textController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final size = MediaQuery.of(context).size;
-    final textController = TextEditingController();
+
 
     final firestore = FirebaseFirestore.instance;
     final fireStoreModel = FireStoreModel();
