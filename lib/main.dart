@@ -24,6 +24,7 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -42,17 +43,34 @@ Future<void> main() async {
     /// default FCM channel to enable heads up notifications.
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
     /// Update the iOS foreground notification presentation options to allow
     /// heads up notifications.
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
+    await messaging.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
     );
+  }
+
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    print('User granted permission');
+  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    print('User granted provisional permission');
+  } else {
+    print('User declined or has not accepted permission');
   }
 
   runApp(const ProviderScope(child: MyApp()));
@@ -74,7 +92,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends HookConsumerWidget {
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fireStoreModel = FireStoreModel();
