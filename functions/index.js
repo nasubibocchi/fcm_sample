@@ -8,7 +8,10 @@ const firestore = admin.firestore()
 const pushMessage = (fcmToken, text) => ({
     notification: {
         title: '新しいメッセージがあります',
-        body:  `${text}`,
+        body: `${text}`,
+    },
+    android: {
+        priority: "high",
     },
     apns: {
         headers: {
@@ -16,6 +19,7 @@ const pushMessage = (fcmToken, text) => ({
         },
         payload: {
             aps: {
+                contentAvailable: true,
                 badge: 9999,
                 sound: 'default'
             }
@@ -25,13 +29,17 @@ const pushMessage = (fcmToken, text) => ({
         data: 'test',
     },
     token: fcmToken
-  });
+});
 
 
-exports.sendMessage = functions.firestore.document('users/{fcmToken}/post/{postId}').onCreate(async (snapshot, context) => {
+exports.sendMessage = functions.firestore.document('users/{fcmToken}/post/{postId}').onCreate(async (snapshot) => {
     const fcmToken = snapshot.data()['fcmToken'];
     const text = snapshot.data()['text'];
-    console.log(fcmToken);
-    console.log(text);
-    try {pushMessage(fcmToken, text);} catch (e) {console.log(e);}
+    try {
+        pushMessage(fcmToken, text);
+        console.log(fcmToken);
+        console.log(text);
+    } catch (e) {
+        console.log(e);
+    }
 });
