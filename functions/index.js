@@ -36,7 +36,7 @@ exports.sendMessage = functions.firestore.document('users/{fcmToken}/post/{postI
     const fcmToken = snapshot.data()['fcmToken'];
     const text = snapshot.data()['text'];
     try {
-        pushMessage(fcmToken, text);
+        admin.messaging().send(pushMessage(fcmToken, text));
         console.log(fcmToken);
         console.log(text);
     } catch (e) {
